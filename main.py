@@ -1,21 +1,21 @@
-import qiskit
-from scipy.linalg import expm
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.quantum_info.operators import Operator
+from scipy.linalg import expm
 from qiskit.extensions import UnitaryGate
 from qiskit.circuit.add_control import add_control
-A_origin = np.array([[2,-1],[1,4]])
-A = np.vstack((np.hstack((np.zeros_like(A_origin),A_origin)),np.hstack((A_origin.T, np.zeros_like(A_origin)))))
-A = np.matrix(A)
-b = np.array([1,1])
-i = complex(0,1)
-t = np.pi*2/16
-U = expm(i*A*t)
-U = np.matrix(U)
-U_gate = UnitaryGate(U)
-CU = add_control(U_gate,1,ctrl_state=None, label="CU")
-controls = QuantumRegister(3)
-circuit = QuantumCircuit(controls)
-circuit.append(CU, [0,1,2])
-print(circuit)
+from unitary import Unitary
+from circuit import circuit
+from qiskit import IBMQ, Aer, transpile, assemble
+
+def main(A, b, t):
+    CU, b = Unitary(A,b,t)
+    qc = circuit(CU, b, 3)
+    aer_sim = Aer.get_backend('aer_simulator')
+    shots = 2048
+    t_qpe = transpile(qc, aer_sim)
+    qobj = assemble(t_qpe, shots=shots)
+    results = aer_sim.run(qobj).result()
+    answer = results.get_counts()
+    return answer
+if __name__ == "__main__":
+    A_origin = np.array([[2,-1],[1,4]])
+    b = np.array([1,1])
