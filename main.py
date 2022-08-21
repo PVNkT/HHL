@@ -17,5 +17,7 @@ def main(A, b, t):
     answer = results.get_counts()
     return answer
 if __name__ == "__main__":
-    A_origin = np.array([[2,-1],[1,4]])
+    A = np.array([[2,-1],[1,4]])
     b = np.array([1,1])
+    t = np.pi*2/8
+    print(main(A,b,t))

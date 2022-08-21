@@ -30,14 +30,13 @@ def QPE(n_l,n_b,CU):
     #circuit initialization for HHL
     nl_rg = QuantumRegister(n_l, "l")
     nb_rg = QuantumRegister(n_b, "b")
-    classical_rg = ClassicalRegister(n_l)
     #QuantumRegister(size=None, name=None, bits=None) 
-    qc = QuantumCircuit(nl_rg,nb_rg,classical_rg)
+    qc = QuantumCircuit(nl_rg,nb_rg)
     qc.name = "QPE"
     #display(qc.draw(output = 'mpl'))
-
+    qc.h(nl_rg[:]) #n_1 register에 하다마드 게이트를 모두 걸어줌
+    qc.barrier()
     for l in range(n_l):
-        qc.h(nl_rg[l]) #n_1 register에 하다마드 게이트를 모두 걸어줌
         for power in range(2**(l)):
             qc.append(CU, [nl_rg[l],nb_rg[0],nb_rg[1]]) 
             #첫번째 큐비트는 2^0번, 이후 2^n꼴로 돌아가게 설계됨.

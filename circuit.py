@@ -2,6 +2,7 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from QPE import QPE
 from rotation import rotation
+
 def circuit(CU, b, nl, nf = 1):
     nb = int(np.log2(b.shape))
     nl_rg = QuantumRegister(nl, "l")
@@ -12,10 +13,13 @@ def circuit(CU, b, nl, nf = 1):
     cb = ClassicalRegister(nb)
     qc = QuantumCircuit(nl_rg,nf_rg, na_rg, nb_rg, cf, cb)
     qc.h(nb_rg[1])
-    qc_qpe = QPE(nl, b, CU)
+    qc.barrier()
+    qc_qpe = QPE(nl, nb, CU)
     qc_qpet = qc_qpe.inverse()
     qc_rot = rotation(nl)
     qc = qc + qc_qpe + qc_rot + qc_qpet
+    qc.barrier()
     qc.measure(nf_rg,cf)
     qc.measure(nb_rg,cb)
+    print(qc)
     return qc
