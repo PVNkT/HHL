@@ -7,6 +7,9 @@ from qiskit.extensions import UnitaryGate
 from qiskit.circuit.add_control import add_control
 from qiskit import IBMQ, Aer, transpile, assemble
 
+from qiskit.circuit.library import PhaseEstimation
+from unitary import Unitary, CUnitary
+
 def qft_dagger(n):
     """n-qubit QFTdagger the first n qubits in circ"""
     qc = QuantumCircuit(n)
@@ -26,10 +29,12 @@ def qft_dagger(n):
     #display(qc.draw(output = 'mpl'))
     return qc
 
-def QPE(n_l,n_b,CU):
+def QPE(n_l,A,t):
     #circuit initialization for HHL
-    nl_rg = QuantumRegister(n_l, "l")
-    nb_rg = QuantumRegister(n_b, "b")
+    CU, n_b = CUnitary(A, t)
+    nl_rg = QuantumRegister(n_l, "eval")
+    nb_rg = QuantumRegister(n_b, "q")
+
     #QuantumRegister(size=None, name=None, bits=None) 
     qc = QuantumCircuit(nl_rg,nb_rg)
     qc.name = "QPE"
@@ -50,4 +55,9 @@ def QPE(n_l,n_b,CU):
     #display(qc.draw(output = 'mpl'))
     # qc2 = qc.inverse()
     # display(qc2.draw(output = 'mpl'))
-    return qc
+    return qc, n_b
+
+def qpe_qiskit(nl, A, t):
+    U, n_b = Unitary(A, t)
+    qpe = PhaseEstimation(nl, U)
+    return qpe, n_b
