@@ -15,10 +15,11 @@ def qft_dagger(n):
     qc = QuantumCircuit(n)
     # Don't forget the Swaps!
     #QFT의 역연산은 곧 QFT_dagger임을 기억하자.
-
+    """
     #Swap gate 걸어주기 (qiskit에서는 큐빗을 반대로 읽기 때문.)
     for qubit in range(n//2):
         qc.swap(qubit, n-qubit-1)
+    """
     for j in range(n):
         for m in range(j):
                 qc.cp(-np.pi/float(2**(j-m)), m, j)
@@ -29,10 +30,10 @@ def qft_dagger(n):
     #display(qc.draw(output = 'mpl'))
     return qc
 
-def QPE(n_l,A,t):
+def QPE(n_l,A,t, adjoint = False):
     #circuit initialization for HHL
-    CU, n_b = CUnitary(A, t)
-    nl_rg = QuantumRegister(n_l, "eval")
+    CU, n_b = CUnitary(A, t, adjoint=adjoint)
+    nl_rg = QuantumRegister(n_l, "state")
     nb_rg = QuantumRegister(n_b, "q")
 
     #QuantumRegister(size=None, name=None, bits=None) 
@@ -57,7 +58,7 @@ def QPE(n_l,A,t):
     # display(qc2.draw(output = 'mpl'))
     return qc, n_b
 
-def qpe_qiskit(nl, A, t):
-    U, n_b = Unitary(A, t)
+def qpe_qiskit(nl, A, t, adjoint=False):
+    U, n_b = Unitary(A, t, adjoint=adjoint)
     qpe = PhaseEstimation(nl, U)
     return qpe, n_b
