@@ -7,10 +7,10 @@ def circuit(A, nl, delta):
     nf = 1
     t = 2* np.pi * delta
     neg_vals = True
-    #qc_qpe, nb = QPE(nl, A, t)
-    #qc_qpet = QPE(nl, A, t, adjoint = False)[0].inverse()
-    qc_qpe, nb = qpe_qiskit(nl, A, t)
-    qc_qpet = qpe_qiskit(nl, A, t, adjoint = False)[0].inverse()
+    qc_qpe, nb = QPE(nl, A, t)
+    qc_qpet = QPE(nl, A, t, adjoint = False)[0].inverse()
+    #qc_qpe, nb = qpe_qiskit(nl, A, t)
+    #qc_qpet = qpe_qiskit(nl, A, t, adjoint = False)[0].inverse()
     nl_rg = QuantumRegister(nl, "state")
     nb_rg = QuantumRegister(nb, "q")
     #na_rg = QuantumRegister(nl, "a")

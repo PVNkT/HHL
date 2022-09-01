@@ -10,7 +10,7 @@ from qiskit import IBMQ, Aer, transpile, assemble
 from qiskit.circuit.library import PhaseEstimation
 from unitary import Unitary, CUnitary
 
-def qft_dagger(n):
+def qft(n, inverse = False):
     """n-qubit QFTdagger the first n qubits in circ"""
     qc = QuantumCircuit(n)
     # Don't forget the Swaps!
@@ -20,12 +20,13 @@ def qft_dagger(n):
     for qubit in range(n//2):
         qc.swap(qubit, n-qubit-1)
     """
-    for j in range(n):
-        for m in range(j):
-                qc.cp(-np.pi/float(2**(j-m)), m, j)
-                qc.inverse()
-                
+    for j in reversed(range(n)):
         qc.h(j)
+        for m in reversed(range(j)):
+            qc.cp(np.pi * (2.0 ** (m - j)), m, j)
+    if inverse:
+        qc.inverse()
+                
     qc.name = "QFT†"
     #display(qc.draw(output = 'mpl'))
     return qc
@@ -49,7 +50,7 @@ def QPE(n_l,A,t, adjoint = False):
             #https://qiskit.org/documentation/stubs/qiskit.circuit.ControlledGate.html append의 예제.
             #즉, append의 첫번째 인자는 gate, 두번쨰 인자의 첫번째 요소는 control qubit, 이후 인자의 요소는 target qubit.
     qc.barrier()
-    qc.append(qft_dagger(n_l), range(n_l)) 
+    qc.append(qft(n_l, inverse = True), range(n_l)) 
         #append안에 들어간 qft_dagger라는 함수가 반환하는 qc라는 회로에 이름을 지정하면 간단히 이름으로 표기 가능
     qc.barrier()
     #qc.measure(nl_rg,classical_rg)
