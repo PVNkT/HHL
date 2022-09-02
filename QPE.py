@@ -31,9 +31,9 @@ def qft(n, inverse = False):
     #display(qc.draw(output = 'mpl'))
     return qc
 
-def QPE(n_l,A,t, adjoint = False):
+def QPE(n_l, n_b, A,t, adjoint = False):
     #circuit initialization for HHL
-    U, n_b = Unitary(A, t, adjoint=adjoint)
+    U = Unitary(A, t, adjoint=adjoint)
     CU = add_control(U,1,ctrl_state=None, label="CU")
     CU.name = "CU"
     nl_rg = QuantumRegister(n_l, "state")
@@ -59,9 +59,9 @@ def QPE(n_l,A,t, adjoint = False):
     #display(qc.draw(output = 'mpl'))
     # qc2 = qc.inverse()
     # display(qc2.draw(output = 'mpl'))
-    return qc, n_b
+    return qc
 
 def qpe_qiskit(nl, A, t, adjoint=False):
-    U, n_b = Unitary(A, t, adjoint=adjoint)
+    U = Unitary(A, t, adjoint=adjoint)
     qpe = PhaseEstimation(nl, U)
-    return qpe, n_b
+    return qpe

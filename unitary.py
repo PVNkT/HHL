@@ -27,5 +27,4 @@ def Unitary(A, t, adjoint = False):
     if adjoint:
         U = U.H
     U_gate = UnitaryGate(U)
-    n_b = int(np.log2(U.shape[0]))
-    return U_gate, n_b
+    return U_gate
