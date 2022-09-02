@@ -33,7 +33,9 @@ def qft(n, inverse = False):
 
 def QPE(n_l,A,t, adjoint = False):
     #circuit initialization for HHL
-    CU, n_b = CUnitary(A, t, adjoint=adjoint)
+    U, n_b = Unitary(A, t, adjoint=adjoint)
+    CU = add_control(U,1,ctrl_state=None, label="CU")
+    CU.name = "CU"
     nl_rg = QuantumRegister(n_l, "state")
     nb_rg = QuantumRegister(n_b, "q")
 
@@ -44,13 +46,13 @@ def QPE(n_l,A,t, adjoint = False):
     qc.h(nl_rg[:]) #n_1 register에 하다마드 게이트를 모두 걸어줌
     qc.barrier()
     for l in range(n_l):
-        for power in range(2**(l)):
-            qc.append(CU, [nl_rg[l],nb_rg[0],nb_rg[1]]) 
+        qc.append(CU.power(2**l), [nl_rg[l],nb_rg[0],nb_rg[1]]) 
             #첫번째 큐비트는 2^0번, 이후 2^n꼴로 돌아가게 설계됨.
             #https://qiskit.org/documentation/stubs/qiskit.circuit.ControlledGate.html append의 예제.
             #즉, append의 첫번째 인자는 gate, 두번쨰 인자의 첫번째 요소는 control qubit, 이후 인자의 요소는 target qubit.
     qc.barrier()
-    qc.append(qft(n_l, inverse = True), range(n_l)) 
+    qc = qc.compose(qft(n_l, inverse = True), range(n_l))
+    #qc.append(qft(n_l, inverse = True), range(n_l)) 
         #append안에 들어간 qft_dagger라는 함수가 반환하는 qc라는 회로에 이름을 지정하면 간단히 이름으로 표기 가능
     qc.barrier()
     #qc.measure(nl_rg,classical_rg)

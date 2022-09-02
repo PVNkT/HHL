@@ -3,7 +3,7 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from QPE import QPE, qpe_qiskit
 from rotation import rotation, Reciprocal
 
-def circuit(A, nl, delta):
+def circuit(A, nl, delta, wrap = True):
     nf = 1
     t = 2* np.pi * delta
     neg_vals = True
@@ -25,10 +25,15 @@ def circuit(A, nl, delta):
     #qc_qpet = qc_qpe.inverse()
     #qc_rot = rotation(nl).reverse_bits()
     qc_rot = Reciprocal(nl, delta = delta*(2**(nl-1)), neg_vals = neg_vals)
-    qc.append(qc_qpe,nl_rg[:]+nb_rg[:])
-    qc.append(qc_rot,[nl_rg[2]]+[nl_rg[1]]+[nl_rg[0]]+nf_rg[:])#.to_instruction(label="1/x")
-    qc.append(qc_qpet,nl_rg[:]+nb_rg[:])
     #qc = qc + qc_qpe + qc_rot + qc_qpet
+    if wrap:
+        qc.append(qc_qpe,nl_rg[:]+nb_rg[:])
+        qc.append(qc_rot,[nl_rg[2]]+[nl_rg[1]]+[nl_rg[0]]+nf_rg[:])#.to_instruction(label="1/x")
+        qc.append(qc_qpet,nl_rg[:]+nb_rg[:])
+    else:
+        qc = qc.compose(qc_qpe,nl_rg[:]+nb_rg[:])
+        qc = qc.compose(qc_rot,[nl_rg[2]]+[nl_rg[1]]+[nl_rg[0]]+nf_rg[:])#.to_instruction(label="1/x")
+        qc = qc.compose(qc_qpet,nl_rg[:]+nb_rg[:])
     qc.barrier()
     #qc.x(nb_rg[1])
     qc.measure(nf_rg,cf)

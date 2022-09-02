@@ -14,11 +14,11 @@ def CUnitary(A, t, adjoint = False):
     n_b = int(np.log2(U.shape[0]))
     U_gate = UnitaryGate(U)
     CU = add_control(U_gate,1,ctrl_state=None, label="CU")
-
+    CU.name = "CU"
     return CU, n_b
 
 def Unitary(A, t, adjoint = False):
-    A = np.vstack((np.hstack((np.zeros_like(A),A)),np.hstack((A.T, np.zeros_like(A)))))
+    #A = np.vstack((np.hstack((np.zeros_like(A),A)),np.hstack((A.T, np.zeros_like(A)))))
     #A = A + np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])*(5)
     #A = np.array([[0,2,0,-1],[2,0,1,0],[0,1,0,4],[-1,0,4,0]])
     i = complex(0,1)
