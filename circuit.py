@@ -49,7 +49,7 @@ def circuit(A, b, nl, delta, wrap = True):
         qc.append(qc_qpet,nl_rg[:]+nb_rg[:])
     else:
         #QPE, reciprocal, QPE inverse를 순서대로 추가, 내부의 gate들을 나누어서 표현
-        qc.compose(init_b, nb_rg[:])
+        qc = qc.compose(init_b, nb_rg[:])
         qc.barrier()
         qc = qc.compose(qc_qpe,nl_rg[:]+nb_rg[:])
         qc = qc.compose(qc_rot,[nl_rg[2]]+[nl_rg[1]]+[nl_rg[0]]+nf_rg[:])
@@ -59,6 +59,9 @@ def circuit(A, b, nl, delta, wrap = True):
     qc.measure(nf_rg,cf)
     qc.measure(nb_rg,cb)
     #회로 그림을 저장
-    qc.draw("mpl").savefig("HHL_circuit.png")
+    if wrap:
+        qc.draw("mpl").savefig("HHL_circuit_wrapped.png")
+    else:
+        qc.draw("mpl").savefig("HHL_circuit_unwrapped.png")
     #회로를 반환
     return qc

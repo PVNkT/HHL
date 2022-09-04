@@ -8,59 +8,56 @@ from qiskit.circuit.add_control import add_control
 from qiskit import IBMQ, Aer, transpile, assemble
 
 from qiskit.circuit.library import PhaseEstimation
-from unitary import Unitary, CUnitary
+from unitary import Unitary
 
+#QPE에 사용될 Quantum Fourier Transformation을 정의한다.
 def qft(n, inverse = False):
-    """n-qubit QFTdagger the first n qubits in circ"""
+    #사용될 양자 회로를 정의한다.
     qc = QuantumCircuit(n)
-    # Don't forget the Swaps!
-    #QFT의 역연산은 곧 QFT_dagger임을 기억하자.
-    """
-    #Swap gate 걸어주기 (qiskit에서는 큐빗을 반대로 읽기 때문.)
-    for qubit in range(n//2):
-        qc.swap(qubit, n-qubit-1)
-    """
+    #QFT의 swap gate에 대한 효과를 reversed함수를 통해서 gate를 반대로 적용하여 사용하였다.
+    #QFT는 각 qubit에 대해서 Hadamard gate를 걸고 그 qubit다음에 존재하는 qubit들에 대해서 
+    #두 qubit이 떨어져 있는 정도에 따라서 회전을 시키는 과정을 모든 qubit에 적용하여 작동한다.
+    #회전하는 정도는 pi를 두 qubit이 떨어진 정도를 2의 지수로 표현한 것으로 나눈것이다. 
     for j in reversed(range(n)):
         qc.h(j)
         for m in reversed(range(j)):
+            #m은 항상 j보다 작거나 같기 때문에 2의 지수는 항상 음수이다.
             qc.cp(np.pi * (2.0 ** (m - j)), m, j)
+    #inverse qft를 얻고 싶을 경우 inverse 함수를 사용
     if inverse:
         qc.inverse()
-                
-    qc.name = "QFT†"
-    #display(qc.draw(output = 'mpl'))
     return qc
 
+#Quantum Phase Estimation을 정의하는 함수
 def QPE(n_l, n_b, A,t, adjoint = False):
-    #circuit initialization for HHL
+    #주어진 Hermition 행렬을 t를 통해서 unitary 행렬로 바꾸어 양자 gate의 형태로 바꾼다.
     U = Unitary(A, t, adjoint=adjoint)
+    #U를 통해 만든 gate를 controlled gate의 형태로 바꾼다. (1은 control qubit의 수가 1이라는 의미)
     CU = add_control(U,1,ctrl_state=None, label="CU")
+    #이름 부여
     CU.name = "CU"
+    #QPE를 적용할 양자 register를 만든다.
     nl_rg = QuantumRegister(n_l, "state")
     nb_rg = QuantumRegister(n_b, "q")
-
-    #QuantumRegister(size=None, name=None, bits=None) 
+    #양자 register들을 합친 회로를 만든다. 
     qc = QuantumCircuit(nl_rg,nb_rg)
+    #회로의 이름
     qc.name = "QPE"
-    #display(qc.draw(output = 'mpl'))
-    qc.h(nl_rg[:]) #n_1 register에 하다마드 게이트를 모두 걸어줌
+
+    #아래부터 QPE의 정의부분
+    #nl register의 모든 qubit에 Hadamard gate를 걸어주어 모든 상태가 중첩된 상태를 만든다.
+    qc.h(nl_rg[:]) 
     qc.barrier()
+    #controlled unitary gate를 각각 2^l만큼 제곱한 gate를 걸어주어 행렬 A의 eigenvalue를 Fourier basis에서 표현한다.
     for l in range(n_l):
         qc.append(CU.power(2**l), [nl_rg[l],nb_rg[0],nb_rg[1]]) 
-            #첫번째 큐비트는 2^0번, 이후 2^n꼴로 돌아가게 설계됨.
-            #https://qiskit.org/documentation/stubs/qiskit.circuit.ControlledGate.html append의 예제.
-            #즉, append의 첫번째 인자는 gate, 두번쨰 인자의 첫번째 요소는 control qubit, 이후 인자의 요소는 target qubit.
     qc.barrier()
+    #QFT를 적용하여 eigenvalue를 nl register의 computational basis 상태로 표현
     qc = qc.compose(qft(n_l, inverse = True), range(n_l))
-    #qc.append(qft(n_l, inverse = True), range(n_l)) 
-        #append안에 들어간 qft_dagger라는 함수가 반환하는 qc라는 회로에 이름을 지정하면 간단히 이름으로 표기 가능
     qc.barrier()
-    #qc.measure(nl_rg,classical_rg)
-    #display(qc.draw(output = 'mpl'))
-    # qc2 = qc.inverse()
-    # display(qc2.draw(output = 'mpl'))
     return qc
 
+#qiskit에서 제공한 PhaseEstimation 함수를 사용해서 QPE를 구현
 def qpe_qiskit(nl, A, t, adjoint=False):
     U = Unitary(A, t, adjoint=adjoint)
     qpe = PhaseEstimation(nl, U)

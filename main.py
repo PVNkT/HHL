@@ -49,13 +49,13 @@ def main(A, b, wrap = True):
     print('classical solution:', classical_sol)
     #고전적인 결과와 비교하였을 때 모델에 대한 에러
     my_err = np.linalg.norm(classical_sol-my_sol)
-    qiskit_err = np.linalg.norm(classical_sol-qiskit_sol)
+    qiskit_err = np.linalg.norm(classical_sol-np.absolute(qiskit_sol))
     print("my error:", my_err)
     print("qiskit error:", qiskit_err)
 if __name__ == "__main__":
     #A, b입력
     A = np.array([[2,-1],[1,4]])
     b = np.array([1,1])
-    main(A,b)
+    main(A,b, wrap = False)
     
     
