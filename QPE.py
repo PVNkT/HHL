@@ -25,13 +25,13 @@ def qft(n, inverse = False):
             qc.cp(np.pi * (2.0 ** (m - j)), m, j)
     #inverse qft를 얻고 싶을 경우 inverse 함수를 사용
     if inverse:
-        qc.inverse()
+        qc = qc.inverse()
     return qc
 
 #Quantum Phase Estimation을 정의하는 함수
-def QPE(n_l, n_b, A,t, adjoint = False):
+def QPE(n_l, n_b, A,t):
     #주어진 Hermition 행렬을 t를 통해서 unitary 행렬로 바꾸어 양자 gate의 형태로 바꾼다.
-    U = Unitary(A, t, adjoint=adjoint)
+    U = Unitary(A, t)
     #U를 통해 만든 gate를 controlled gate의 형태로 바꾼다. (1은 control qubit의 수가 1이라는 의미)
     CU = add_control(U,1,ctrl_state=None, label="CU")
     #이름 부여
@@ -53,7 +53,7 @@ def QPE(n_l, n_b, A,t, adjoint = False):
         qc.append(CU.power(2**l), [nl_rg[l],nb_rg[0],nb_rg[1]]) 
     qc.barrier()
     #QFT를 적용하여 eigenvalue를 nl register의 computational basis 상태로 표현
-    qc = qc.compose(qft(n_l, inverse = True), range(n_l))
+    qc = qc.compose(qft(n_l, inverse = True).reverse_bits(), nl_rg[:])
     qc.barrier()
     return qc
 

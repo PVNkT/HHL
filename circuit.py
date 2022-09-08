@@ -15,7 +15,7 @@ def circuit(A, b, nl, delta, wrap = True):
     #Quantum Phase Estimation을 시행하는 회로
     qc_qpe= QPE(nl, nb, A, t)
     #QPE를 역과정으로 만든 회로
-    qc_qpet = QPE(nl, nb, A, t, adjoint = False).inverse()
+    qc_qpet = QPE(nl, nb, A, t).inverse()
     """
     #qiskit에서 제공하는 QPE 함수를 그대로 사용하는 경우 아래의 코드를 사용
     qc_qpe, nb = qpe_qiskit(nl, A, t)

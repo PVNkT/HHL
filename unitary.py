@@ -4,7 +4,7 @@ from scipy.linalg import expm
 from qiskit.extensions import UnitaryGate
 from qiskit.circuit.add_control import add_control
 
-def Unitary(A, t, adjoint = False):
+def Unitary(A, t):
     #허수 단위 i를 정의
     i = complex(0,1)
     #scipy의 행렬의 exponential을 계산하는 함수를 사용
