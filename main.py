@@ -8,7 +8,7 @@ HHL 알고리즘에 대한 이해를 위해서 qiskit에서 제공하는 HHL 알
 임의의 선형 방정식 Ax=b (A가 Hermition이 아니여도 됨)에 대해서 A와 b가 주어졌을 때 normalize된 x 벡터를 구하는 코드이다. 
 실제 값을 얻기 위해서는 normalize된 벡터를 다시 Ax = b에 대입하여 특정한 상수를 구해주는 과정이 추가적으로 필요하다.
 """
-def main(A, b, wrap = True):
+def main(A, b, wrap = True, state_vector = True):
     #A가 Hermition인지 아닌지를 확인하고 A가 Hermition이 아닐 경우 0벡터를 추가하여 Hermition의 형태가 되도록 한다.
     """
     ex) A = [[a,b],     
@@ -35,9 +35,8 @@ def main(A, b, wrap = True):
         A = np.vstack((np.hstack((np.zeros_like(A),A)),np.hstack((A.conj().T, np.zeros_like(A)))))
         b = np.hstack((b, np.zeros_like(b)))
     # delta를 통해서 evolution time t와 reciprocal 과정에서의 scaling을 결정한다. 이 코드에서는 임의의 값으로 설정함
-    delta = 1/16
     #재구성한 모델
-    my_sol = HHL_my(A, b, delta, wrap = wrap)
+    my_sol = HHL_my(A, b, wrap = wrap, state_vector = state_vector)
     #원본 qiskit 모델
     qiskit_sol = HHL_qiskit(A,b) 
     #고전적인 계산 결과
@@ -49,13 +48,13 @@ def main(A, b, wrap = True):
     print('classical solution:', classical_sol)
     #고전적인 결과와 비교하였을 때 모델에 대한 에러
     my_err = np.linalg.norm(classical_sol-my_sol)
-    qiskit_err = np.linalg.norm(classical_sol-np.absolute(qiskit_sol))
+    qiskit_err = np.linalg.norm(classical_sol-qiskit_sol)
     print("my error:", my_err)
     print("qiskit error:", qiskit_err)
 if __name__ == "__main__":
     #A, b입력
-    A = np.array([[2,-1],[1,4]])
-    b = np.array([1,1])
-    main(A,b, wrap = False)
+    A = np.array([[1,2],[3,4]])
+    b = np.array([5,6])
+    main(A,b, wrap = False, state_vector = True)
     
     

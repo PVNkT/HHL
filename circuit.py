@@ -3,11 +3,11 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from QPE import QPE, qpe_qiskit
 from rotation import rotation, Reciprocal
 from initialize import make_b_state
-def circuit(A, b, nl, delta, wrap = True):
+def circuit(A, b, nl, evolution_time, delta, wrap = True, state_vector = True):
     #flag qubit의 갯수, 상태 준비가 확률적인 경우 늘릴 필요가 있음
     nf = 1
     #evolution time 정의, eigenvalue에 따라서 다르게 정의할 필요가 있음
-    t = 2* np.pi * delta
+    t = evolution_time
     #eigenvalue가 음수일 경우 -를 포함하는 qubit이 필요하고 이것을 boolean으로 표현
     neg_vals = True
     #b벡터를 normalize된 양자 상태로 바꾸는 회로
@@ -38,7 +38,7 @@ def circuit(A, b, nl, delta, wrap = True):
     qc_rot = rotation(nl)
     """
     #qiskit에서 제공하는 Reciprocal 함수를 사용해서 f qubit에 대한 회전을 구현 
-    qc_rot = Reciprocal(nl, delta = delta*(2**(nl-1)), neg_vals = neg_vals)
+    qc_rot = Reciprocal(nl, delta = delta, neg_vals = neg_vals)
 
     if wrap:
         #QPE, reciprocal, QPE inverse를 순서대로 추가, 각각을 하나의 instruction으로 표현
@@ -52,12 +52,15 @@ def circuit(A, b, nl, delta, wrap = True):
         qc = qc.compose(init_b, nb_rg[:])
         qc.barrier()
         qc = qc.compose(qc_qpe,nl_rg[:]+nb_rg[:])
-        qc = qc.compose(qc_rot,[nl_rg[2]]+[nl_rg[1]]+[nl_rg[0]]+nf_rg[:])
+        qc = qc.compose(qc_rot,[nl_rg[i] for i in reversed(range(nl))]+nf_rg[:])
         qc = qc.compose(qc_qpet,nl_rg[:]+nb_rg[:])
     qc.barrier()
     #각 register들을 측정한다
-    qc.measure(nf_rg,cf)
-    qc.measure(nb_rg,cb)
+    if state_vector:
+        pass
+    else:
+        qc.measure(nf_rg,cf)
+        qc.measure(nb_rg,cb)
     #회로 그림을 저장
     if wrap:
         qc.draw("mpl").savefig("HHL_circuit_wrapped.png")
