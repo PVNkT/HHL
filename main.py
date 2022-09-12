@@ -55,13 +55,13 @@ def main(A, b, wrap = True, state_vector = True):
     #고전적인 결과와 비교하였을 때 모델에 대한 에러
     my_err = np.linalg.norm(classical_sol-my_sol)
     qiskit_err = np.linalg.norm(classical_sol-qiskit_sol)
-    print("my error:", my_err*100,"%")
-    print("qiskit error:", qiskit_err*100,"%")
+    print("my error:", my_err)
+    print("qiskit error:", qiskit_err)
 
 if __name__ == "__main__":
     #A, b입력
-    A = np.array([[1,2],[3,4]])
-    b = np.array([5,6])
+    A = np.array([[1,-1,1,3],[-1,3,-2,1],[1,-2,0,2],[3,1,2,1]])
+    b = np.array([2,1,3,2])
     #statevector를 사용하지 않고 측정을 통한 앙상블을 통해서 계산할 경우 음의 amplitude를 계산할 수 없어서 오류가 생긴다. 
     main(A,b, wrap = False, state_vector = True)
     

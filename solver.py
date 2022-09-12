@@ -9,15 +9,15 @@ from value_setter import value_setter
 
 def HHL_my(A, b, wrap = True, state_vector = True):
     #기초 회로 구성, 입력값: A(행렬), b(벡터), nl(사용하는 qubit의 수, 높을 수록 정확도가 높아짐), delta(evolution time t와 reciprocal 과정에서의 scaling을 결정), wrap(회로를 합쳐서 볼지 결정)
-    nl, evolution_time, delta = value_setter(A)
-    qc = circuit(A, b, nl, evolution_time, delta, wrap = wrap, state_vector = state_vector)
+    nl, evolution_time, delta, neg_vals = value_setter(A)
+    qc = circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = wrap, state_vector = state_vector)
     if state_vector:
         naive_sv = Statevector(qc).data
         #qubit수를 확인
         num_qubit = qc.num_qubits
         #상태 벡터에서 필요한 상태만을 골라서 저장함
         #print(naive_sv)
-        naive_full_vector = np.array([naive_sv[2**(num_qubit-1)], naive_sv[2**(num_qubit-1)+1], naive_sv[2**(num_qubit-1)+2], naive_sv[2**(num_qubit-1)+3]])
+        naive_full_vector = np.array([naive_sv[2**(num_qubit-1)+i] for i in range(len(b))])
         #실수 부분만 취함
         naive_full_vector = np.real(naive_full_vector)
         #얻어진 벡터를 normalize하여 반환
@@ -52,7 +52,7 @@ def HHL_qiskit(A,b):
     #qubit수를 확인
     num_qubit = solution.state.num_qubits
     #상태 벡터에서 필요한 상태만을 골라서 저장함
-    naive_full_vector = np.array([naive_sv[2**(num_qubit-1)], naive_sv[2**(num_qubit-1)+1], naive_sv[2**(num_qubit-1)+2], naive_sv[2**(num_qubit-1)+3]])
+    naive_full_vector = np.array([naive_sv[2**(num_qubit-1)+i] for i in range(len(b))])
     #실수 부분만 취함
     naive_full_vector = np.real(naive_full_vector)
     #얻어진 벡터를 normalize하여 반환

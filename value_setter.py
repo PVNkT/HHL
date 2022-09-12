@@ -59,7 +59,7 @@ def value_setter(A):
     음의 eigenvalue를 가지는 경우 추가적으로 2로 나누어준다.
     """
     evolution_time = 2 * np.pi * delta / lambda_min / (2**neg_vals)
-    return n_l, evolution_time, delta
+    return n_l, evolution_time, delta, neg_vals
 
 
 if __name__ == "__main__":

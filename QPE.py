@@ -50,7 +50,7 @@ def QPE(n_l, n_b, A,t):
     qc.barrier()
     #controlled unitary gate를 각각 2^l만큼 제곱한 gate를 걸어주어 행렬 A의 eigenvalue를 Fourier basis에서 표현한다.
     for l in range(n_l):
-        qc.append(CU.power(2**l), [nl_rg[l],nb_rg[0],nb_rg[1]]) 
+        qc.append(CU.power(2**l), [nl_rg[l]]+[nb_rg[i] for i in range(n_b)]) 
     qc.barrier()
     #QFT를 적용하여 eigenvalue를 nl register의 computational basis 상태로 표현
     qc = qc.compose(qft(n_l, inverse = True).reverse_bits(), nl_rg[:])

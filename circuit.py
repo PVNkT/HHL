@@ -3,13 +3,13 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from QPE import QPE, qpe_qiskit
 from rotation import rotation, Reciprocal
 from initialize import make_b_state
-def circuit(A, b, nl, evolution_time, delta, wrap = True, state_vector = True):
+def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, state_vector = True):
     #flag qubit의 갯수, 상태 준비가 확률적인 경우 늘릴 필요가 있음
     nf = 1
     #evolution time 정의, eigenvalue에 따라서 다르게 정의할 필요가 있음
     t = evolution_time
     #eigenvalue가 음수일 경우 -를 포함하는 qubit이 필요하고 이것을 boolean으로 표현
-    neg_vals = True
+    neg_vals = neg_vals
     #b벡터를 normalize된 양자 상태로 바꾸는 회로
     init_b, nb = make_b_state(b)
     #Quantum Phase Estimation을 시행하는 회로
@@ -45,7 +45,7 @@ def circuit(A, b, nl, evolution_time, delta, wrap = True, state_vector = True):
         qc.append(init_b, nb_rg[:])
         qc.barrier()
         qc.append(qc_qpe,nl_rg[:]+nb_rg[:])
-        qc.append(qc_rot,[nl_rg[2]]+[nl_rg[1]]+[nl_rg[0]]+nf_rg[:])
+        qc.append(qc_rot,[nl_rg[i] for i in reversed(range(nl))]+nf_rg[:])
         qc.append(qc_qpet,nl_rg[:]+nb_rg[:])
     else:
         #QPE, reciprocal, QPE inverse를 순서대로 추가, 내부의 gate들을 나누어서 표현
