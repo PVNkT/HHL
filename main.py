@@ -1,7 +1,7 @@
 import numpy as np
 from solver import HHL_my, HHL_qiskit
 from qiskit.algorithms.linear_solvers.numpy_linear_solver import NumPyLinearSolver
-
+from get_answer import get_answer
 """
 HHL 알고리즘에 대한 이해를 위해서 qiskit에서 제공하는 HHL 알고리즘의 코드를 기반으로 코드를 재구성해 보았다.
 이 코드에서는 qiskit의 HHL 코드에서 몇개의 변수에 대한 계산을 생략하고 특정한 값을 넣어서 작동시켰다.
@@ -27,34 +27,42 @@ def main(A, b, wrap = True, state_vector = True):
         0,
         0] 으로 바꾸어 원래의 식과 동일하게 바꾼다.
     """
-
+    hermition = True
     if np.allclose(A, A.conj().T):
         A = A
         b = b
+        hermition = True
     else:
         A = np.vstack((np.hstack((np.zeros_like(A),A)),np.hstack((A.conj().T, np.zeros_like(A)))))
         b = np.hstack((b, np.zeros_like(b)))
-    # delta를 통해서 evolution time t와 reciprocal 과정에서의 scaling을 결정한다. 이 코드에서는 임의의 값으로 설정함
+        hermition = False
+    
     #재구성한 모델
     my_sol = HHL_my(A, b, wrap = wrap, state_vector = state_vector)
+    my_sol = get_answer(A, b, my_sol, hermition = hermition)
     #원본 qiskit 모델
-    qiskit_sol = HHL_qiskit(A,b) 
+    qiskit_sol = HHL_qiskit(A,b)
+    qiskit_sol = get_answer(A, b, qiskit_sol, hermition = hermition) 
     #고전적인 계산 결과
     classical_solution = NumPyLinearSolver().solve(A, b / np.linalg.norm(b))
     classical_sol = classical_solution.state/np.linalg.norm(classical_solution.state)
+    classical_sol = get_answer(A, b, classical_sol, hermition = hermition) 
 
     print("my solution:", my_sol)
     print("qiskit solution:", qiskit_sol)
     print('classical solution:', classical_sol)
+
     #고전적인 결과와 비교하였을 때 모델에 대한 에러
     my_err = np.linalg.norm(classical_sol-my_sol)
     qiskit_err = np.linalg.norm(classical_sol-qiskit_sol)
-    print("my error:", my_err)
-    print("qiskit error:", qiskit_err)
+    print("my error:", my_err*100,"%")
+    print("qiskit error:", qiskit_err*100,"%")
+
 if __name__ == "__main__":
     #A, b입력
     A = np.array([[1,2],[3,4]])
     b = np.array([5,6])
+    #statevector를 사용하지 않고 측정을 통한 앙상블을 통해서 계산할 경우 음의 amplitude를 계산할 수 없어서 오류가 생긴다. 
     main(A,b, wrap = False, state_vector = True)
     
     
