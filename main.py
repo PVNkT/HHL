@@ -60,8 +60,8 @@ def main(A, b, wrap = True, state_vector = True):
 
 if __name__ == "__main__":
     #A, b입력
-    A = np.array([[1,-1,1,3],[-1,3,-2,1],[1,-2,0,2],[3,1,2,1]])
-    b = np.array([2,1,3,2])
+    A = np.array([[2,-1],[1,3]])
+    b = np.array([1,1])
     #statevector를 사용하지 않고 측정을 통한 앙상블을 통해서 계산할 경우 음의 amplitude를 계산할 수 없어서 오류가 생긴다. 
     main(A,b, wrap = False, state_vector = True)
     

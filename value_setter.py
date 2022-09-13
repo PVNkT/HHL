@@ -22,11 +22,12 @@ def get_delta(n_l, lambda_min, lambda_max, neg_vals):
     eigenvalue의 최소값을 eigenvalue의 최대값으로 나누면 0~1 사이의 값을 가진다.
     아래의 코드는 이 0~1 사이의 값을 주어진 만큼의 bit를 사용하는 2진법 형태의 소수 표현법으로 표시하기 위한 코드이다. 
     """
-    #왜 -1?
-    #lambda_min_tilde = np.abs(lambda_min * (2**(n_l-neg_vals) - 1) / lambda_max)
+    
     #우선 eigenvalue의 최소값을 최대값으로 나눈 비를 원하는 정확도 만큼의 2의 거듭제곱만큼 곱한다.
-    lambda_min_tilde = np.abs(lambda_min * 2**(n_l-neg_vals)/ lambda_max)
-
+    #lambda_min_tilde = np.abs(lambda_min * 2**(n_l-neg_vals)/ lambda_max)
+    #왜 -1? scaling 값이 eigenvalue의 최소값을 넘지 않도록 하기 위해서 작은 수를 빼준다?
+    lambda_min_tilde = np.abs(lambda_min * (2**(n_l-neg_vals) - 1) / lambda_max)
+    
     # floating point precision can cause problems
     if np.abs(lambda_min_tilde - 1) < 1e-7:
         lambda_min_tilde = 1
@@ -45,6 +46,7 @@ def value_setter(A):
     lambda_max, lambda_min, neg_vals = get_eigenvalue(A)
     #condition number를 계산한다.
     kappa = np.linalg.cond(A)
+    print("condition number:", kappa)
     #A의 크기로 부터 nb값을 계산한다.
     nb = int(np.log2(len(A[0])))
     #적절한 nl값을 계산한다. condition number가 커질 수록 더 많은 qubit이 필요하게 된다.
