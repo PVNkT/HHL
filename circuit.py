@@ -3,7 +3,7 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from QPE import QPE, qpe_qiskit
 from rotation import rotation, Reciprocal
 from initialize import make_b_state
-def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, state_vector = True):
+def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, measurement = None):
     #flag qubit의 갯수, 상태 준비가 확률적인 경우 늘릴 필요가 있음
     nf = 1
     #evolution time 정의, eigenvalue에 따라서 다르게 정의할 필요가 있음
@@ -26,12 +26,14 @@ def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, state_vector
     nb_rg = QuantumRegister(nb, "q")
     #na_rg = QuantumRegister(nl, "a")
     nf_rg = QuantumRegister(nf, "flag")
-    #classical register들을 설정, 계산에 필요한 f와 b만을 따로 측정 
-    cf = ClassicalRegister(nf)
-    cb = ClassicalRegister(nb)
-    #register들을 합쳐서 회로를 구성, 필요할 경우 na추가
-    qc = QuantumCircuit(nb_rg, nl_rg,nf_rg, cf, cb)
-
+    #classical register들을 설정, 계산에 필요한 f와 b만을 따로 측정
+    if measurement == "norm":
+        qc = QuantumCircuit(nb_rg, nl_rg,nf_rg)
+    else: 
+        cf = ClassicalRegister(nf)
+        cb = ClassicalRegister(nb)
+        #register들을 합쳐서 회로를 구성, 필요할 경우 na추가
+        qc = QuantumCircuit(nb_rg, nl_rg,nf_rg, cf, cb)
     qc.barrier()
     """
     #Chebyshev근사를 사용한 방식을 사용하는 경우 (부정확함)
@@ -56,7 +58,7 @@ def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, state_vector
         qc = qc.compose(qc_qpet,nl_rg[:]+nb_rg[:])
     qc.barrier()
     #각 register들을 측정한다
-    if state_vector:
+    if measurement == "statevector" or measurement == "norm":
         pass
     else:
         qc.measure(nf_rg,cf)

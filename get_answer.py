@@ -6,12 +6,28 @@ def get_answer(A, b, answer, hermition = False):
     k = 1
     #주어진 행렬이 hermition인지 아닌지에 따라서 원래의 행렬 방정식을 복원하고 상수값을 구한다. 이때 각 성분에 따라서 k가 달라지기 때문에 평균을 취한다.
     if hermition:
-        k = np.mean(b/np.matmul(A, answer))
+        b_cal = np.matmul(A, answer)
+        k_list = []
+        #b 벡터의 요소중에 0이 포함되어 있을 경우 오류가 생길 수 있기 때문에 0인 부분을 제외한다.
+        for i, b_el in enumerate(b):
+            if b_el < 1e-7:
+                pass
+            else:
+                k_list.append(b_el/b_cal[i])
+        k = np.mean(np.array(k_list))
     else:
         A = A[:len(A[0])//2][:,len(A[0])//2:]
         b = b[:len(b)//2]
         answer = answer[len(answer)//2:]
-        k = np.mean(b/np.matmul(A, answer))
+        b_cal = np.matmul(A, answer)
+        k_list = []
+        #b 벡터의 요소중에 0이 포함되어 있을 경우 오류가 생길 수 있기 때문에 0인 부분을 제외한다.
+        for i, b_el in enumerate(b):
+            if b_el < 1e-7:
+                pass
+            else:
+                k_list.append(b_el/b_cal[i])
+        k = np.mean(np.array(k_list))
     return k*answer
 
 

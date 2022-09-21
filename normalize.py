@@ -1,6 +1,6 @@
 import numpy as np
 #양자 회로를 통해서 얻어진 결과(dictionary)를 통해서 normalize된 결과 벡터 x를 구하는 함수
-def normalize_vector(answer, nb):
+def calculate_vector(answer, nb, measurement = None):
     #nb register에서 얻어질 수 있는 상태들을 dictionary의 key의 형태로 만들어 저장한다.
     possible_states = []
     for s in range(2**(nb)):
@@ -11,7 +11,7 @@ def normalize_vector(answer, nb):
     for i in possible_states:
         for key in answer.keys():
         
-            if key[0:2] == i:
+            if key[0:nb] == i:
                 if int(key[-1]) == 1:
                     available_result.append(answer[key])
                 else:
@@ -19,7 +19,10 @@ def normalize_vector(answer, nb):
             else:
                 pass
     #확률 분포를 상태 벡터의 형식으로 바꾸기 위해서 제곱근을 취한다.
-    available_result = np.sqrt(np.array(available_result))
-    #벡터의 크기가 1이 되도록 normalize해준다.
-    normalized_result = available_result/np.linalg.norm(available_result)
-    return normalized_result
+    if measurement == "norm":
+        return np.linalg.norm(np.sqrt(np.array(available_result)/8192))
+    else:
+        available_result = np.sqrt(np.array(available_result))
+        #벡터의 크기가 1이 되도록 normalize해준다.
+        normalized_result = available_result/np.linalg.norm(available_result)
+        return normalized_result
