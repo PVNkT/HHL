@@ -11,11 +11,13 @@ from qiskit.opflow import (
     I,
     StateFn,
     TensoredOp)
+from qiskit.tools import job_monitor
 
 def HHL_my(A, b, wrap = True, measurement = None):
     """
     measurement == "statevector": use statevector simulation
     measurement == "norm": use observable to calculate Euclidian norm
+    measurement == "real_{backend name}": use real quantum computer
     else: use noraml measurement
     """
     #기초 회로 구성, 입력값: A(행렬), b(벡터), nl(사용하는 qubit의 수, 높을 수록 정확도가 높아짐), delta(evolution time t와 reciprocal 과정에서의 scaling을 결정), wrap(회로를 합쳐서 볼지 결정)
@@ -35,24 +37,45 @@ def HHL_my(A, b, wrap = True, measurement = None):
         #얻어진 벡터를 normalize하여 반환
         #print(naive_full_vector)
         vector = naive_full_vector/eigen_min
+
     elif measurement == "norm":
         zero_op = (I + Z) / 2
         one_op = (I - Z) / 2
         observable = one_op ^ TensoredOp((nl) * [zero_op]) ^ (I ^ nb)
         norm = (~StateFn(observable) @ StateFn(qc)).eval()
         vector = np.real(np.sqrt(norm)/eigen_min)
-    else:
-        #양자 회로를 시뮬레이션하는 코드
-        aer_sim = Aer.get_backend('aer_simulator')
+
+    elif measurement[:4] == "real":
+        IBMQ.load_account()
+        provider = IBMQ.get_provider(hub='ibm-q-skku', group='hanyang-uni', project='hu-students')
+        backend = provider.get_backend(measurement[5:])
+        
+        #backend = Aer.get_backend('aer_simulator')
         shots = 8192
-        t_qpe = transpile(qc, aer_sim)
+        t_qpe = transpile(qc, backend)
         qobj = assemble(t_qpe, shots=shots)
-        results = aer_sim.run(qobj).result()
+        job = backend.run(qobj)
+        job_monitor(job)
+        results = job.result()
+        
         #시뮬레이션된 결과를 dictionary로 받음
         answer = results.get_counts()
         #실험 결과를 통해서 noramlize된 결과를 얻음
         vector = calculate_vector(answer, int(np.log2(len(b))))
-        vector = vector/eigen_min
+    else:
+        #양자 회로를 시뮬레이션하는 코드
+        
+        backend = Aer.get_backend('aer_simulator')
+        shots = 8192
+        t_qpe = transpile(qc, backend)
+        qobj = assemble(t_qpe, shots=shots)
+        job = backend.run(qobj)
+        results = job.result()
+        
+        #시뮬레이션된 결과를 dictionary로 받음
+        answer = results.get_counts()
+        #실험 결과를 통해서 noramlize된 결과를 얻음
+        vector = calculate_vector(answer, int(np.log2(len(b))))
     return vector
 
 

@@ -62,6 +62,7 @@ def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, measurement 
         pass
     else:
         qc.measure(nf_rg,cf)
+        qc.barrier()
         qc.measure(nb_rg,cb)
     #회로 그림을 저장
     if wrap:
