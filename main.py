@@ -67,6 +67,6 @@ if __name__ == "__main__":
     A = np.array([[3,1],[1,2]])
     b = np.array([4,3])
     #statevector를 사용하지 않고 측정을 통한 앙상블을 통해서 계산할 경우 음의 amplitude를 계산할 수 없어서 오류가 생긴다. 
-    main(A,b, wrap = False, measurement = "real_ibmq_toronto")
+    main(A,b, wrap = True, measurement = "statevector")
     
     

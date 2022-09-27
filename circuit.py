@@ -1,7 +1,7 @@
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from QPE import QPE, qpe_qiskit
-from rotation import rotation, Reciprocal
+from rotation import rotation, Reciprocal, my_rotation
 from initialize import make_b_state
 def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, measurement = None):
     #flag qubit의 갯수, 상태 준비가 확률적인 경우 늘릴 필요가 있음
@@ -40,8 +40,8 @@ def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, measurement 
     qc_rot = rotation(nl)
     """
     #qiskit에서 제공하는 Reciprocal 함수를 사용해서 f qubit에 대한 회전을 구현 
-    qc_rot = Reciprocal(nl, delta = delta, neg_vals = neg_vals)
-
+    #qc_rot = Reciprocal(nl, delta = delta, neg_vals = neg_vals)
+    qc_rot = my_rotation(nl, nf=nf, scaling = delta, neg_vals = neg_vals)
     if wrap:
         #QPE, reciprocal, QPE inverse를 순서대로 추가, 각각을 하나의 instruction으로 표현
         qc.append(init_b, nb_rg[:])
