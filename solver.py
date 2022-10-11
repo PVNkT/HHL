@@ -88,7 +88,7 @@ def HHL_qiskit(A,b, measurement = None):
     solution = hhl.solve(A, b)
     #만들어진 회로를 그림으로 저장
     #print(solution.euclidean_norm)
-    solution.state.draw("mpl").savefig("HHL_circuit_qiskit.png")
+    solution.state.draw("mpl").savefig("image/HHL_circuit_qiskit.png")
     #연산된 상태를 상태 벡터의 형태로 결과를 얻음
     naive_sv = Statevector(solution.state).data
     #qubit수를 확인

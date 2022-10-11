@@ -80,7 +80,7 @@ def MCRY(eigen, nl, scaling, neg_vals=True):
     
     #eigenvalue가 0일 경우에는 회전을 진행하지 않는다.
     if eigen == 0:
-        Gate = RY(0, eigen)
+        Gate = RY(2*np.arcsin(scaling/(2**nl)), eigen)
     else:
         #1상태의 amplitude가 C/eigenvalue의 형태가 되도록 각도를 계산하여 회전시킨다.
         Gate = RY(2*np.arcsin(scaling/eigen), eigen)
@@ -121,10 +121,8 @@ def my_rotation(nl, nf, scaling, neg_vals: Boolean):
     qc = QuantumCircuit(nl_rg, nf_rg)
     #음의 eigenvalue를 포함하는 경우
     if neg_vals:
-        #0에 해당하는 eigenvalue는 따로 적용
-        qc = qc.compose(MCRY(0, nl-1, scaling, neg_vals=neg_vals))
         #부호를 의미하는 첫 번째 qubit을 제외하고 가능한 경우들에 대해 loop 
-        for eigen in range(1, 2**(nl-1)):
+        for eigen in range(2**(nl-1)):
             #가능한 양수 부분에 대한 회전을 적용
             qc = qc.compose(MCRY(eigen, nl-1, scaling, neg_vals=neg_vals))
             #가능한 음수 부분에 대한 회전을 적용
@@ -134,7 +132,7 @@ def my_rotation(nl, nf, scaling, neg_vals: Boolean):
     #모든 eigenvalue가 양수인 경우
     else:
         #eigenvalue가 모두 양수인 경우 모든 가능한 경우에 대해서 loop
-        for eigen in range(0, 2**nl):
+        for eigen in range(2**nl):
             #가능한 gate들을 모두 적용
             qc = qc.compose(MCRY(eigen, nl, scaling, neg_vals=neg_vals))
             #gate간의 구별을 위한 barrier
@@ -143,3 +141,6 @@ def my_rotation(nl, nf, scaling, neg_vals: Boolean):
     qc.name = "C/x"
     return qc
 
+if __name__ == "__main__":
+    qc = my_rotation(3, 1, 1, True)
+    qc.draw("mpl").savefig("image/rotation.png")

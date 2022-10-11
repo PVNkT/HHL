@@ -66,8 +66,8 @@ def circuit(A, b, nl, evolution_time, delta, neg_vals, wrap = True, measurement 
         qc.measure(nb_rg,cb)
     #회로 그림을 저장
     if wrap:
-        qc.draw("mpl").savefig("HHL_circuit_wrapped.png")
+        qc.draw("mpl").savefig("image/HHL_circuit_wrapped.png")
     else:
-        qc.draw("mpl").savefig("HHL_circuit_unwrapped.png")
+        qc.draw("mpl").savefig("image/HHL_circuit_unwrapped.png")
     #회로를 반환
     return qc

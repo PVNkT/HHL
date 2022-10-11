@@ -62,3 +62,13 @@ def qpe_qiskit(nl, A, t, adjoint=False):
     U = Unitary(A, t, adjoint=adjoint)
     qpe = PhaseEstimation(nl, U)
     return qpe
+
+
+if __name__ == "__main__":
+    qc_qft = qft(4).reverse_bits()
+    qc_qft.draw("mpl").savefig("image/QFT.png")
+
+    A = np.array([[2,-1],[1,4]])
+    A = np.vstack((np.hstack((np.zeros_like(A),A)),np.hstack((A.conj().T, np.zeros_like(A)))))
+    qc_qpe = QPE(3, 2, A, np.pi/16)
+    qc_qpe.draw("mpl").savefig("image/QPE.png")

@@ -50,6 +50,7 @@ def value_setter(A):
     #A의 크기로 부터 nb값을 계산한다.
     nb = int(np.log2(len(A[0])))
     #적절한 nl값을 계산한다. condition number가 커질 수록 더 많은 qubit이 필요하게 된다.
+    #n_l = 6
     n_l = max(nb + 1, int(np.ceil(np.log2(kappa + 1)))) + neg_vals
     #scaling과 evolution time을 계산하기 위한 delta(eigenvalue의 최소값을 최대값으로 나눈 것을 이진 소수점으로 정확하게 표현되게 한 것)를 계산한다.
     #scaling은 eigenvalue의 최소값(여기서는 최대값으로 나눈 값, tilde)에 가까운 값을 가져야 하기 때문에 delta값을 scaling값으로 표현한다.
